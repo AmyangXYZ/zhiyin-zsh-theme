@@ -115,3 +115,36 @@ function pscleanup {
 }
 
 trap pscleanup EXIT
+
+# 切换动画状态
+function toggle_psanimate_state() {
+  if [[ $PS_ANIMATION_ENABLED == "true" ]]; then
+    psanimate_stop
+    export PS_ANIMATION_ENABLED="false"
+  else
+    psanimate 0.08
+    export PS_ANIMATION_ENABLED="true"
+  fi
+}
+
+# 设置 zsh 的 preexec 和 precmd 钩子
+autoload -Uz add-zsh-hook
+
+# 在执行命令之前停止动画
+preexec() {
+  if [[ $PS_ANIMATION_ENABLED == "true" ]]; then
+    psanimate_stop
+  fi
+}
+
+# 在命令完成后重新启动动画
+precmd() {
+  if [[ $PS_ANIMATION_ENABLED == "true" ]]; then
+    psanimate 0.08
+  fi
+}
+
+add-zsh-hook -Uz preexec preexec
+add-zsh-hook -Uz precmd precmd
+
+export PS_ANIMATION_ENABLED="true"
